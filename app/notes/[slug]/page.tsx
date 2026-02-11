@@ -2,22 +2,27 @@ import { notFound } from 'next/navigation';
 import { Calendar, Eye, Tag, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { formatDate, generateArticleSchema } from '@/lib/utils/seo';
+import connectDB from '@/lib/mongodb';
+import Note from '@/lib/models/Note';
+import { Metadata } from 'next';
 
+// Ensure database connection
 async function getNote(slug: string) {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/notes/${slug}`, {
-            cache: 'no-store',
-        });
+        await connectDB();
+        const note = await Note.findOne({ slug }).lean();
 
-        if (!response.ok) return null;
-        const data = await response.json();
-        return data.note;
+        if (!note) return null;
+
+        // Simplify converting MongoDB object to plain JS object
+        return JSON.parse(JSON.stringify(note));
     } catch (error) {
+        console.error('Error fetching note:', error);
         return null;
     }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const note = await getNote(params.slug);
 
     if (!note) {
@@ -46,7 +51,7 @@ export default async function SingleNotePage({ params }: { params: { slug: strin
         author: 'Student Platform Team',
         publishedDate: new Date(note.createdAt),
         modifiedDate: new Date(note.updatedAt),
-        url: `${process.env.NEXT_PUBLIC_SITE_URL}/notes/${note.slug}`,
+        url: `https://student-platform.vercel.app/notes/${note.slug}`,
     });
 
     return (

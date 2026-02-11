@@ -2,22 +2,41 @@ import { notFound } from 'next/navigation';
 import { Calendar, User, Eye, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { formatDate, generateArticleSchema } from '@/lib/utils/seo';
+import connectDB from '@/lib/mongodb';
+import Blog from '@/lib/models/Blog';
+import { Metadata } from 'next';
 
+// Ensure database connection
 async function getBlog(slug: string) {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/blogs/${slug}`, {
-            cache: 'no-store',
-        });
+        await connectDB();
+        const blog = await Blog.findOne({ slug }).lean();
 
-        if (!response.ok) return null;
-        const data = await response.json();
-        return { blog: data.blog, relatedPosts: data.relatedPosts };
+        if (!blog) return null;
+
+        // Fetch related posts (same category, excluding current)
+        const relatedPosts = await Blog.find({
+            category: blog.category,
+            _id: { $ne: blog._id }
+        })
+            .limit(3)
+            .select('title slug excerpt')
+            .lean();
+
+        // Convert _id and dates to string/number for serialization if needed, 
+        // though strictly not required directly in RSC if not passing to client components yet.
+        // But helpful to sanitize.
+        return {
+            blog: JSON.parse(JSON.stringify(blog)),
+            relatedPosts: JSON.parse(JSON.stringify(relatedPosts))
+        };
     } catch (error) {
+        console.error('Error fetching blog:', error);
         return null;
     }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const data = await getBlog(params.slug);
 
     if (!data) {
@@ -48,7 +67,7 @@ export default async function SingleBlogPage({ params }: { params: { slug: strin
         author: blog.author,
         publishedDate: new Date(blog.createdAt),
         modifiedDate: new Date(blog.updatedAt),
-        url: `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${blog.slug}`,
+        url: `https://student-platform.vercel.app/blog/${blog.slug}`,
     });
 
     return (
