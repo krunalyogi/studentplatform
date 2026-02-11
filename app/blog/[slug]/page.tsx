@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { formatDate, generateArticleSchema } from '@/lib/utils/seo';
 import connectDB from '@/lib/mongodb';
 import Blog from '@/lib/models/Blog';
+import { Blog as BlogType } from '@/types';
 import { Metadata } from 'next';
 
 // Ensure database connection
 async function getBlog(slug: string) {
     try {
         await connectDB();
-        const blog = await Blog.findOne({ slug }).lean();
+        const blog = await Blog.findOne({ slug }).lean() as unknown as BlogType;
 
         if (!blog) return null;
 
@@ -21,11 +22,9 @@ async function getBlog(slug: string) {
         })
             .limit(3)
             .select('title slug excerpt')
-            .lean();
+            .lean() as unknown as BlogType[];
 
-        // Convert _id and dates to string/number for serialization if needed, 
-        // though strictly not required directly in RSC if not passing to client components yet.
-        // But helpful to sanitize.
+        // Convert _id and dates to string/number for serialization if needed
         return {
             blog: JSON.parse(JSON.stringify(blog)),
             relatedPosts: JSON.parse(JSON.stringify(relatedPosts))

@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { formatDate, generateArticleSchema } from '@/lib/utils/seo';
 import connectDB from '@/lib/mongodb';
 import Note from '@/lib/models/Note';
+import { Note as NoteType } from '@/types';
 import { Metadata } from 'next';
 
 // Ensure database connection
 async function getNote(slug: string) {
     try {
         await connectDB();
-        const note = await Note.findOne({ slug }).lean();
+        const note = await Note.findOne({ slug }).lean() as unknown as NoteType;
 
         if (!note) return null;
 
