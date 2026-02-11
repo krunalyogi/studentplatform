@@ -192,7 +192,7 @@ Feel free to fork, modify, and use this project for your own purposes!
 
 ## 📧 Contact
 
-For questions or support, contact: support@studentplatform.com
+For questions or support, contact: krunalyogi9@gmail.com
 
 ---
 
