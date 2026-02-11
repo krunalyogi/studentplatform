@@ -32,6 +32,8 @@ export const authOptions: NextAuthOptions = {
                     throw new Error('Invalid password');
                 }
 
+                console.log('User found:', { email: user.email, role: user.role });
+
                 return {
                     id: user._id.toString(),
                     email: user.email,
@@ -43,9 +45,11 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async jwt({ token, user }: { token: any, user: any }) {
             if (user) {
+                console.log('JWT Callback - User:', user);
                 token.role = user.role;
                 token.id = user.id;
             }
+            console.log('JWT Callback - Token:', token);
             return token;
         },
         async session({ session, token }: { session: any, token: any }) {
@@ -63,4 +67,5 @@ export const authOptions: NextAuthOptions = {
         strategy: 'jwt',
     },
     secret: process.env.NEXTAUTH_SECRET,
+    debug: true, // Enable debug logs
 };

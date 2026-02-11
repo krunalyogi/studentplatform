@@ -24,10 +24,14 @@ export default function AdminLogin() {
                 password,
             });
 
+            console.log('SignIn Result:', result);
+
             if (result?.error) {
                 setError(result.error);
-            } else {
+            } else if (result?.ok) {
                 router.push('/admin/dashboard');
+            } else {
+                setError('Login failed without error message');
             }
         } catch (err) {
             setError('An unexpected error occurred');
