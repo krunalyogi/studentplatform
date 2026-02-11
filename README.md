@@ -2,6 +2,11 @@
 
 A complete, production-ready full-stack platform for students featuring study notes, career guidance blogs, and 10 essential student tools.
 
+## 🌐 Live Demo
+
+Check out the live version here: **[https://student-platform.vercel.app](https://student-platform.vercel.app)**
+*(Note: If your URL is different, please update this link)*
+
 ## 🚀 Features
 
 ### 📚 Study Notes
@@ -192,4 +197,3 @@ For questions or support, contact: support@studentplatform.com
 ---
 
 **Made with ❤️ for students worldwide**
-"# studentplatform" 
