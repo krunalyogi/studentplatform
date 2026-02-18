@@ -3,8 +3,14 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
     function middleware(req) {
-        if (req.nextUrl.pathname.startsWith('/admin') &&
-            req.nextUrl.pathname !== '/admin/login') {
+        const { pathname } = req.nextUrl;
+
+        // Allow the login page through without any checks
+        if (pathname === '/admin/login') {
+            return NextResponse.next();
+        }
+
+        if (pathname.startsWith('/admin')) {
             const token = req.nextauth.token;
             console.log('Middleware - Token:', token);
 
@@ -21,7 +27,13 @@ export default withAuth(
     },
     {
         callbacks: {
-            authorized: ({ token }) => !!token
+            // Allow unauthenticated access to the login page; protect everything else
+            authorized: ({ token, req }) => {
+                if (req.nextUrl.pathname === '/admin/login') {
+                    return true;
+                }
+                return !!token;
+            }
         },
         pages: {
             signIn: '/admin/login',

@@ -69,6 +69,7 @@ export const authOptions: NextAuthOptions = {
     },
     secret: process.env.NEXTAUTH_SECRET,
     debug: true, // Enable debug logs
+    // @ts-ignore
     trustHost: true, // Crucial for Vercel
     cookies: {
         sessionToken: {
